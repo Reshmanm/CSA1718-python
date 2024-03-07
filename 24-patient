@@ -1,0 +1,47 @@
+% Facts: Symptoms and Conditions
+symptom(fever).
+symptom(cough).
+symptom(headache).
+symptom(sore_throat).
+
+condition(flu).
+condition(cold).
+condition(migraine).
+condition(strep_throat).
+
+% Rules for Diagnosis
+diagnosis(Patient, Condition) :-
+    symptom(Symptom),
+    write('Do you have '), write(Symptom), write('? (yes/no): '),
+    read(Response),
+    Response = yes,
+    asserta(has_symptom(Patient, Symptom)),
+    fail.
+
+diagnosis(Patient, Condition) :-
+    condition(Condition),
+    has_symptom(Patient, Symptom),
+    symptom_of_condition(Symptom, Condition),
+    retract(has_symptom(Patient, Symptom)).
+
+symptom_of_condition(fever, flu).
+symptom_of_condition(cough, flu).
+symptom_of_condition(headache, migraine).
+symptom_of_condition(sore_throat, strep_throat).
+
+% Interactive Interface for Patients
+patient_diagnosis :-
+    write('Enter your name: '),
+    read(Patient),
+    write('Hello '), write(Patient), write('! Let\'s check your symptoms.\n'),
+    diagnosis(Patient, _),
+    write('\nDiagnosis complete. Possible conditions:\n'),
+    findall(Condition, diagnosis(Patient, Condition), Conditions),
+    list_conditions(Conditions).
+
+list_conditions([]) :-
+    write('No specific conditions identified. Consult a healthcare professional for accurate diagnosis.\n').
+
+list_conditions([Condition | Rest]) :-
+    write('- '), write(Condition), nl,
+    list_conditions(Rest).
